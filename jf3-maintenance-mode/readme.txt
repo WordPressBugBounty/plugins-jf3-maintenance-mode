@@ -1,14 +1,14 @@
 === Maintenance Redirect ===
-Contributors: petervandoorn,jfinch3
-Tags: maintenance, maintenance mode, maintenance mode page, 503, 200, 507, redirect, developer, coming soon, coming soon page, launch page, under construction, unavailable, offline, site offline
-Requires at least: 5.3
-Tested up to: 6.6.2
-Requires PHP: 7.4
-Stable tag: 2.1.1
-Text Domain: jf3-maintenance-mode
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Donate link: https://paypal.me/fabulosawebdesigns
+Contributors:		petervandoorn,jfinch3
+Tags:			maintenance, maintenance mode, redirect, developer, coming soon
+Requires at least:	6.1
+Tested up to:		6.9
+Requires PHP:		7.4
+Stable tag:		2.2
+Text Domain:		jf3-maintenance-mode
+License:		GPLv2 or later
+License URI:		http://www.gnu.org/licenses/gpl-2.0.html
+Donate link:		https://paypal.me/fabulosawebdesigns
 
 Display a maintenance mode page and allow invited visitors to bypass the functionality to preview the site.
 
@@ -99,14 +99,19 @@ Yes, there is no problem when using access keys. However, using the IP address w
 7. Maintenance Message tab showing HTML
 
 == Changelog ==
+= 2.2 =
+* Updated minimum requirements for WP (6.1).
+* Added built-in WordPress code editor to the HTML field. Thanks to @maurofon for the idea to do this.
+
 = 2.1.1 =
-* Removed the testing of X-FORWARDED-FOR header to get the IP address for the whitelisting bypass as some over-zealous security researcher says that can be spoofed. Access through a proxy must now be made by whitelisting the proxy IP rather than the end-user's.
+* Updated minimum requirements for PHP (7.4).
+* Removed the checking of X-FORWARDED-FOR header to get the IP address for the whitelisting bypass as some over-zealous security researcher says that can be spoofed. Access through a proxy must now be made by whitelisting the proxy IP rather than the end-user's.
 
 = 2.0.1 =
 * Added clarification to readme and on-screen info about the scope of what this plugin blocks (see FAQs)
 
 = 2.0 =
-* Uodated minimum requirements for WP (5.1) and PHP (5.6).
+* Updated minimum requirements for WP (5.1) and PHP (5.6).
 * Updated the UI with tabs for each of the sections.
 * Changed the activation method from a select menu to a toggle switch.
 * Split the HTML and Message storage in the database to separate fields. When the plugin is updated the message text should be copied across, but please do double-check. *I suggest that you make a copy of your message or HTML before updating just in case.*

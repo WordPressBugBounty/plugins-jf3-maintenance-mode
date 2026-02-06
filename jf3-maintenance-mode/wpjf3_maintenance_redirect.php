@@ -3,9 +3,9 @@
  * Plugin Name:		Maintenance Redirect
  * Plugin URI:		https://www.fabulosawebdesign.co.uk
  * Description:		Display a maintenance mode page and allow invited visitors to bypass the functionality to preview the site.
- * Version:			2.1.1
- * Requires at least:	5.3
- * Tested up to:		6.6.2
+ * Version:			2.2
+ * Requires at least:	6.1
+ * Tested up to:		6.9
  * Requires PHP:		7.4
  * Author:      		Peter Hardy-vanDoorn
  * Author URI:		https://www.fabulosawebdesign.co.uk
@@ -122,9 +122,12 @@ if( !class_exists("wpjf3_maintenance_redirect") ) {
 		
 		// (php) find user IP.
 		function get_user_ip(){
-			//$ip = ( isset( $_SERVER['HTTP_X_FORWARD_FOR'] ) ) ? $_SERVER['HTTP_X_FORWARD_FOR'] : $_SERVER['REMOTE_ADDR'];
-			$ip = $_SERVER['REMOTE_ADDR'];
-			return $ip;
+			
+			$ip = $_SERVER['REMOTE_ADDR'] ?? null;
+
+			if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) return $ip;
+			
+			return null;
 		}
 
 		// (php) determine user class c
@@ -735,7 +738,7 @@ if( !class_exists("wpjf3_maintenance_redirect") ) {
 				$wpjf3_mr_options[ 'maintenance_html' ]    = trim( $_POST['wpjf3_mr_maintenance_html'] );
 				
 				$wpjf3_mr_options[ 'active_tab' ]          = sanitize_text_field( trim( $_POST[ 'wpjf3_mr_active_tab' ] ) );
-				$wpjf3_mr_options[ 'hide_coffee' ] = false;
+				$wpjf3_mr_options[ 'hide_coffee' ] 		 = false;
 				if ( array_key_exists( 'wpjf3_mr_hide_coffee', $_POST ) ) 
 					if ( $_POST[ 'wpjf3_mr_hide_coffee' ] == "yes" ) $wpjf3_mr_options[ 'hide_coffee' ] = true;
 				$wpjf3_mr_options[ 'uninstall' ] = false;
@@ -755,15 +758,18 @@ if( !class_exists("wpjf3_maintenance_redirect") ) {
 					}
 				}
 				
-				echo '<div class="updated"><p><strong>' . esc_html__( "Settings Updated" ) . '</strong></p></div>';
+				echo '<div class="notice notice-success is-dismissible"><p><strong>' . esc_html__( "Settings Updated" ) . '</strong></p></div>';
 				
 			}
 
 			$wpjf3_mr_options = $this->get_admin_options();
 
-?>
+			?>
 			
 			<script type="text/javascript" charset="utf-8">
+				
+				var wpjf3_is_codeEditor_initialised = false;
+				
 				// bind actions
 				jQuery( document ).ready( function( $ ) {
 					// enable disable toggle
@@ -781,6 +787,9 @@ if( !class_exists("wpjf3_maintenance_redirect") ) {
 						$( '#wpjf3_mr_active_tab' ).val( active_tab );
 						return false;
 					});
+					if ( $( "#wpjf3_mr_method" ).val() == "html" ) {
+						wpjf3_initialise_codeEditor();
+					}
 
 				});
 				
@@ -796,15 +805,15 @@ if( !class_exists("wpjf3_maintenance_redirect") ) {
 						$active_tab = sanitize_text_field( trim( $_POST[ 'wpjf3_mr_active_tab' ] ) ); 
 								
 				?>
-				jQuery( document ).ready( function() {
-					jQuery( "#tabs-nav a" ).removeClass( "active" );
-					jQuery( ".tab-content" ).hide();
-					jQuery( "a[href='<?php echo $active_tab; ?>']").addClass( "active" );
-					jQuery( "<?php echo $active_tab; ?>" ).show();
+				jQuery( document ).ready( function( $ ) {
+					$( "#tabs-nav a" ).removeClass( "active" );
+					$( ".tab-content" ).hide();
+					$( "a[href='<?php echo $active_tab; ?>']").addClass( "active" );
+					$( "<?php echo $active_tab; ?>" ).show();
 				});
 				
 				// (js) update form layout based on main option
-				function wpjf3_mr_toggle_main_options () {
+				function wpjf3_mr_toggle_main_options() {
 					if( jQuery( ".enable-button:checked" ).val() == 'YES' ){
 						jQuery( "#wpjf3_main_options" ).slideDown( 'fast' );
 					}else{
@@ -812,10 +821,21 @@ if( !class_exists("wpjf3_maintenance_redirect") ) {
 					}
 				}
 				
+				// (js) initialise wp code editor
+				function wpjf3_initialise_codeEditor() {
+					if ( !wpjf3_is_codeEditor_initialised ) {
+						wp.codeEditor.initialize( jQuery( '#wpjf3_mr_maintenance_html' ), wpjf3_codeEditor_settings );
+						wpjf3_is_codeEditor_initialised = true;
+					}
+				}
+
 				// (js) update form layout based on method option
 				function wpjf3_mr_toggle_method_options () {
 					jQuery( ".wpjf3_method_input" ).hide();
 					jQuery( "#wpjf3_method_"+jQuery( "#wpjf3_mr_method" ).val() ).show();
+					if ( jQuery( "#wpjf3_mr_method" ).val() == "html" ) {
+						wpjf3_initialise_codeEditor();
+					}
 				}
 				
 				// (js) undim field
@@ -823,6 +843,7 @@ if( !class_exists("wpjf3_maintenance_redirect") ) {
 					if( jQuery('#'+field_id).val() == default_text ) jQuery('#'+field_id).val('');
 					jQuery('#'+field_id).css('color','#000');
 				}
+				
 				// (js) dim field
 				function wpjf3_mr_dim_field( field_id, default_text ) {
 					if( jQuery('#'+field_id).val() == '' ) {
@@ -1308,7 +1329,7 @@ if( !class_exists("wpjf3_maintenance_redirect") ) {
 							<div id="wpjf3_method_html" class="wpjf3_method_input" style="<?php if( $wpjf3_mr_options['method'] != "html" ) echo "display:none;"; ?>" >
 								<strong><?php esc_html_e( "Maintenance Mode HTML:" ); ?></strong>
 								<p><?php esc_html_e( "Paste the full HTML for the page to be displayed." ); ?></p>
-								<p style="margin-bottom: 0;"><textarea name="wpjf3_mr_maintenance_html" rows="10" style="width:100%"><?php echo stripslashes( $wpjf3_mr_options['maintenance_html'] ); ?></textarea></p>
+								<p style="margin-bottom: 0;"><textarea id="wpjf3_mr_maintenance_html"  name="wpjf3_mr_maintenance_html" rows="10" style="width:100%"><?php echo stripslashes( $wpjf3_mr_options['maintenance_html'] ); ?></textarea></p>
 							</div>
 
 
@@ -1357,7 +1378,7 @@ if( !class_exists("wpjf3_maintenance_redirect") ) {
 					
 					<div class="settings-submit">
 						<?php wp_nonce_field( 'wpjf3_nonce' ); ?>
-						<input type="submit" name="update_wp_maintenance_redirect_settings" value="<?php esc_attr_e( 'Update Settings' ); ?>" />
+						<input type="submit" name="update_wp_maintenance_redirect_settings" value="<?php esc_attr_e( 'Update Settings' ); ?>" class="button button-primary" />
 						<p class="wpjf3_mr_small_dim"><?php esc_html_e( "You do not need to use this button if you have only made changes in the Unrestricted IP addresses or Access Keys panels." ); ?></p>
 					</div>
 					
@@ -1390,13 +1411,28 @@ if ( !function_exists( "wpjf3_maintenance_redirect_ap" ) ) {
 	}
 }
 
+function wpjf3_code_editor_enqueue_scripts() {
+
+	if ( get_current_screen()->id !== 'settings_page_JF3_Maint_Redirect' ) return;
+
+	// Enqueue code editor and settings for manipulating HTML.
+	$wpjf3_code_editor_settings = wp_enqueue_code_editor( array( 'type' => 'text/html' ) );
+	// Return if the editor was not enqueued.
+	if ( $wpjf3_code_editor_settings === false ) return;
+
+	wp_localize_script( 'jquery', 'wpjf3_codeEditor_settings', $wpjf3_code_editor_settings );
+
+}
+
+
 // actions and filters	
 if( isset( $my_wpjf3_maintenance_redirect ) ) {
 	// actions & filters
-	add_action( 'admin_menu',     'wpjf3_maintenance_redirect_ap' );
-	add_action( 'send_headers',   array( $my_wpjf3_maintenance_redirect, 'process_redirect' ), 1 );
-	add_action( 'admin_notices',  array( $my_wpjf3_maintenance_redirect, 'display_status_if_active' ) );
-	add_action( 'admin_bar_menu', array( $my_wpjf3_maintenance_redirect, 'adminbar_site_status' ), 200 );
+	add_action( 'admin_menu',     		'wpjf3_maintenance_redirect_ap' );
+	add_action( 'send_headers',   		array( $my_wpjf3_maintenance_redirect, 'process_redirect' ), 1 );
+	add_action( 'admin_notices',  		array( $my_wpjf3_maintenance_redirect, 'display_status_if_active' ) );
+	add_action( 'admin_bar_menu', 		array( $my_wpjf3_maintenance_redirect, 'adminbar_site_status' ), 200 );
+	add_action( 'admin_enqueue_scripts', 	'wpjf3_code_editor_enqueue_scripts' );
 	
 	add_filter( 'plugin_action_links_'.plugin_basename(__FILE__), array( $my_wpjf3_maintenance_redirect, 'plugin_settings_link' ) );
 	add_filter( 'plugin_row_meta', array( $my_wpjf3_maintenance_redirect, 'plugin_info_link' ), 10, 4 );
