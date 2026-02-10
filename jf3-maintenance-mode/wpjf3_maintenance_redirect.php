@@ -3,7 +3,7 @@
  * Plugin Name:		Maintenance Redirect
  * Plugin URI:		https://www.fabulosawebdesign.co.uk
  * Description:		Display a maintenance mode page and allow invited visitors to bypass the functionality to preview the site.
- * Version:			2.2
+ * Version:			2.2.1
  * Requires at least:	6.1
  * Tested up to:		6.9
  * Requires PHP:		7.4
@@ -803,6 +803,9 @@ if( !class_exists("wpjf3_maintenance_redirect") ) {
 			
 					if ( isset( $_POST[ 'wpjf3_mr_active_tab' ] ) ) 
 						$active_tab = sanitize_text_field( trim( $_POST[ 'wpjf3_mr_active_tab' ] ) ); 
+			
+					// Dirty fix for the change of the tab name in 2.2.1
+					if ( $active_tab == "#message" ) $active_tab = "#maintenance-message";
 								
 				?>
 				jQuery( document ).ready( function( $ ) {
@@ -1260,7 +1263,7 @@ if( !class_exists("wpjf3_maintenance_redirect") ) {
 							<li><a href="#header-type"><?php esc_html_e( 'Header Type' ); ?></a></li>
 							<li><a href="#unrestricted-ip"><?php esc_html_e( 'Unrestricted IP addresses' ); ?></a></li>
 							<li><a href="#access-keys"><?php esc_html_e( 'Access Keys' ); ?></a></li>
-							<li><a href="#message"><?php esc_html_e( 'Maintenance Message' ); ?></a></li>
+							<li><a href="#maintenance-message"><?php esc_html_e( 'Maintenance Message' ); ?></a></li>
 							<li><a href="#about"><?php esc_html_e( 'About & Options' ); ?></a></li>
 						</ul> <!-- END tabs-nav -->
 
@@ -1303,7 +1306,7 @@ if( !class_exists("wpjf3_maintenance_redirect") ) {
 							</div>
 						</div>
 
-						<div id="message" class="wpjf3_mr_admin_section tab-content">	
+						<div id="maintenance-message" class="wpjf3_mr_admin_section tab-content">	
 							<h3><?php esc_html_e( "Maintenance Message:" ); ?></h3>
 							<p><?php esc_html_e( "You have three options for how to specify what you want to show users when your site is in maintenance mode. You can display a message, display a static HTML page (which you enter into the box below), or redirect to an existing static HTML page (the file of which must exist on your server)." ); ?></p>
 							<p><select name="wpjf3_mr_method" id="wpjf3_mr_method" style="width:50%" >

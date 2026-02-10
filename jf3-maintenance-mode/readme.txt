@@ -1,12 +1,12 @@
 === Maintenance Redirect ===
 Contributors:		petervandoorn,jfinch3
-Tags:			maintenance, maintenance mode, redirect, developer, coming soon
+Tags:				maintenance, maintenance mode, redirect, developer, coming soon
 Requires at least:	6.1
 Tested up to:		6.9
 Requires PHP:		7.4
-Stable tag:		2.2
+Stable tag:			2.2.1
 Text Domain:		jf3-maintenance-mode
-License:		GPLv2 or later
+License:			GPLv2 or later
 License URI:		http://www.gnu.org/licenses/gpl-2.0.html
 Donate link:		https://paypal.me/fabulosawebdesigns
 
@@ -99,6 +99,9 @@ Yes, there is no problem when using access keys. However, using the IP address w
 7. Maintenance Message tab showing HTML
 
 == Changelog ==
+= 2.2.1 =
+* Fixed conflict with PublishPress Capabilities plugin's admin notices cleanup function. Thanks to @manni02 for bringing that to my attention.
+
 = 2.2 =
 * Updated minimum requirements for WP (6.1).
 * Added built-in WordPress code editor to the HTML field. Thanks to @maurofon for the idea to do this.
